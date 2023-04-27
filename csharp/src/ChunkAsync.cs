@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,59 +38,83 @@ public static class ChunkAsync
     var nextTask = enumerator.MoveNextAsync()
                              .AsTask();
 
-    try
+    Exception? error = null;
+
+    while (true)
     {
-      while (true)
+      Task which;
+      if (timeoutTask is null)
       {
-        var which = await Task.WhenAny(nextTask,
-                                       timeoutTask ?? nextTask)
-                              .ConfigureAwait(false);
+        which = nextTask;
+      }
+      else
+      {
+        which = await Task.WhenAny(nextTask,
+                                   timeoutTask)
+                          .ConfigureAwait(false);
+      }
 
-        which.ThrowIfError();
+      try
+      {
+        await which.ConfigureAwait(false);
+      }
+      catch (Exception e)
+      {
+        error = e;
+        break;
+      }
 
-        if (ReferenceEquals(which,
-                            nextTask))
+      if (error is not null)
+      {
+        break;
+      }
+
+      if (ReferenceEquals(which,
+                          nextTask))
+      {
+        if (!await nextTask.ConfigureAwait(false))
         {
-          if (!await nextTask.ConfigureAwait(false))
-          {
-            if (chunk.Any())
-            {
-              yield return chunk.ToArray();
-            }
-
-            yield break;
-          }
-
-          chunk.Add(enumerator.Current);
-          if (chunk.Count >= chunkSize)
-          {
-            yield return chunk.ToArray();
-            chunk = new List<T>();
-
-            timeoutTask?.Dispose();
-            timeoutTask = null;
-          }
-          else if (timeoutTask is null)
-          {
-            timeoutTask = Task.Delay(delay,
-                                     cancellationToken);
-          }
-
-          nextTask = enumerator.MoveNextAsync()
-                               .AsTask();
-          continue;
+          break;
         }
 
-        yield return chunk.ToArray();
-        chunk = new List<T>();
+        chunk.Add(enumerator.Current);
+        if (chunk.Count >= chunkSize)
+        {
+          yield return chunk.ToArray();
+          chunk = new List<T>();
 
-        timeoutTask?.Dispose();
-        timeoutTask = null;
+          timeoutTask?.Dispose();
+          timeoutTask = null;
+        }
+        else if (timeoutTask is null)
+        {
+          timeoutTask = Task.Delay(delay,
+                                   cancellationToken);
+        }
+
+        nextTask = enumerator.MoveNextAsync()
+                             .AsTask();
+        continue;
       }
-    }
-    finally
-    {
+
+      yield return chunk.ToArray();
+      chunk = new List<T>();
+
       timeoutTask?.Dispose();
+      timeoutTask = null;
+    }
+
+    if (chunk.Any())
+    {
+      yield return chunk.ToArray();
+    }
+
+    timeoutTask?.Dispose();
+
+    if (error is not null)
+    {
+      ExceptionDispatchInfo.Capture(error)
+                           .Throw();
     }
   }
 }
