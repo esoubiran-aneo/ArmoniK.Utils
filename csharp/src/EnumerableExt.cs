@@ -1,6 +1,6 @@
 ﻿// This file is part of the ArmoniK project
 //
-// Copyright (C) ANEO, 2022-2022.All rights reserved.
+// Copyright (C) ANEO, 2022-2023.All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License")
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -99,5 +100,56 @@ public static class EnumerableExt
 
     return Chunk.Iterator(source,
                           size);
+  }
+
+  /// <summary>
+  ///   Split the elements of a sequence into chunks of size at most <paramref name="size" />.
+  /// </summary>
+  /// <remarks>
+  ///   Every chunk except the last will be of size <paramref name="size" />.
+  ///   The last chunk will contain the remaining elements and may be of a smaller size.
+  /// </remarks>
+  /// <param name="source">
+  ///   An <see cref="IEnumerable{T}" /> whose elements to chunk.
+  /// </param>
+  /// <param name="size">
+  ///   Maximum size of each chunk.
+  /// </param>
+  /// <param name="maxDelay">
+  ///   Maximum delay between the reading of a value and the yielding of the chunk containing this value.
+  /// </param>
+  /// <param name="cancellationToken">
+  ///   Cancellation token used for stopping the enumeration.
+  /// </param>
+  /// <typeparam name="TSource">
+  ///   The type of the elements of source.
+  /// </typeparam>
+  /// <returns>
+  ///   An <see cref="IEnumerable{T}" /> that contains the elements the input sequence split into chunks of size
+  ///   <paramref name="size" />.
+  /// </returns>
+  /// <exception cref="ArgumentOutOfRangeException">
+  ///   <paramref name="size" /> is below 1.
+  /// </exception>
+  [PublicAPI]
+  public static IAsyncEnumerable<TSource[]> ToChunksAsync<TSource>(this IAsyncEnumerable<TSource>? source,
+                                                                   int                             size,
+                                                                   TimeSpan                        maxDelay,
+                                                                   CancellationToken               cancellationToken = default)
+  {
+    if (size < 1)
+    {
+      throw new ArgumentOutOfRangeException(nameof(size));
+    }
+
+    if (source is null)
+    {
+      return AsyncEnumerable.Empty<TSource[]>();
+    }
+
+    return Chunk.IteratorAsync(source,
+                               size,
+                               maxDelay,
+                               cancellationToken);
   }
 }
