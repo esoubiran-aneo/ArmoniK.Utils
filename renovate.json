@@ -1,25 +1,21 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:base",
+    "group:allNonMajor",
+    ":semanticCommitTypeAll(chore)"],
   "forkProcessing": "enabled",
   "schedule": ["every weekday"],
   "assignees": ["iadjadj"],
   "packageRules": [
     {
-      "matchPackagePatterns": ["ArmoniK"],
-      "groupName": "Dépendances Armonik"
+      "matchPackagePrefixes": ["ArmoniK"],
+      "groupName": "release packages Armonik"
     },
     {
-      "matchPackageTypes": ["nuget"],
-      "groupName": "Dépendances NuGet"
-    },
-    {
-      "matchPackageTypes": ["action-git"],
-      "groupName": "Dépendances Action-Git"
-    },
-    {
-      "matchPackagePatterns": ["*"],
-      "groupName": "Dépendances Autres"
+    
+    "matchPackagePatterns": ["*"],
+    "excludePackagePrefixes": ["ArmoniK"],
+    "groupName": "other dependencies"  
     }
   ]
 }
