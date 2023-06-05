@@ -1,11 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base",
-    "group:allNonMajor",
-    ":semanticCommits"
+              "group:allNonMajor",
+              ":semanticCommits"
              ],
-  "assignees": ["iadjadj"],
-  "packageRules": [
+  "packageRules":
+  [
     {
       "matchPackagePrefixes": ["ArmoniK"],
       "groupName": "release packages Armonik"
