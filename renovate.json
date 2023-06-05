@@ -2,9 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base",
     "group:allNonMajor",
-    ":semanticCommitTypeAll(chore)"],
-  "forkProcessing": "enabled",
-  "schedule": ["every weekday"],
+    ":semanticCommits"
+             ],
   "assignees": ["iadjadj"],
   "packageRules": [
     {
@@ -12,7 +11,7 @@
       "groupName": "release packages Armonik"
     },
     {
-    
+
     "matchPackagePatterns": ["*"],
     "excludePackagePrefixes": ["ArmoniK"],
     "groupName": "other dependencies"  
