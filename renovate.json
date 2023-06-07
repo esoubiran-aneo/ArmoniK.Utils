@@ -11,10 +11,6 @@
     {
       "groupName": "nuget packages",
       "groupSlug": "nuget",
-      "excludePackagePrefixes": [
-        "ArmoniK.Api",
-        "ArmoniK.Utils"
-      ],
       "matchDatasources": [
         "nuget"
       ]
