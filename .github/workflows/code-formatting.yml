@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 15
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       with:
         ref: ${{ github.ref }}
         fetch-depth: 0
@@ -48,7 +48,7 @@ jobs:
       if: ${{ failure() && steps.check-diff.conclusion == 'failure' }}
       run: |
         git diff > patch-csharp.diff
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4
       if: ${{ failure() && steps.check-diff.conclusion == 'failure' }}
       with:
         name: patch-csharp
