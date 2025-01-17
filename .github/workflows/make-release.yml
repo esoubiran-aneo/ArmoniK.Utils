@@ -16,7 +16,7 @@ jobs:
       release: ${{ steps.release.outputs.version }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
       with:
         ref: ${{ github.ref }}
         fetch-depth: 0
@@ -32,7 +32,7 @@ jobs:
         echo "current-branch=$CURRENT_BRANCH"
     - name: Generate Snapshot Version
       id: snapshot
-      uses: codacy/git-version@2.7.1
+      uses: codacy/git-version@80c816f11db8dea5e3a81025f598193015b51832 # 2.8.0
       with:
         minor-identifier: "feat:"
         release-branch: ${{ github.ref_name }}-pre
@@ -40,7 +40,7 @@ jobs:
 
     - name: Generate Release Version
       id: release
-      uses: codacy/git-version@2.7.1
+      uses: codacy/git-version@80c816f11db8dea5e3a81025f598193015b51832 # 2.8.0
       with:
         minor-identifier: "feat:"
         release-branch: ${{ steps.rev.outputs.current-branch }}
@@ -60,7 +60,7 @@ jobs:
       GENVERSION: ${{ needs.versionning.outputs.release }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
       with:
         ref: ${{ github.ref }}
         fetch-depth: 0
